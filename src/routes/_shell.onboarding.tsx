@@ -67,7 +67,7 @@ function Onboarding() {
               <button aria-label={`Remove ${s.name}`} onClick={() => setSkills(skills.filter((_, j) => j !== i))}><X className="h-4 w-4" /></button>
             </div>
           </div>
-          <Slider value={[s.level]} min={1} max={10} step={1} onValueChange={(v) => setSkills(skills.map((x, j) => (j === i ? { ...x, level: v[0] } : x)))} aria-label={`${s.name} level`} />
+          <Slider value={[s.level]} min={1} max={10} step={1} onValueChange={(v) => setSkills(skills.map((x, j) => (j === i ? { ...x, level: v[0] ?? x.level } : x)))} aria-label={`${s.name} level`} />
         </div>
       ))}
       <form onSubmit={(e) => { e.preventDefault(); if (newSkill.trim()) { setSkills([...skills, { name: newSkill.trim(), level: 3 }]); setNewSkill(""); } }} className="flex gap-2">
