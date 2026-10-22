@@ -11,8 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShellRouteImport } from './routes/_shell'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ShellAdaptRouteImport } from './routes/_shell.adapt'
 import { Route as ShellAssistantRouteImport } from './routes/_shell.assistant'
+import { Route as ShellCheckinRouteImport } from './routes/_shell.checkin'
 import { Route as ShellCompareRouteImport } from './routes/_shell.compare'
 import { Route as ShellDashboardRouteImport } from './routes/_shell.dashboard'
 import { Route as ShellOnboardingRouteImport } from './routes/_shell.onboarding'
@@ -27,6 +30,16 @@ const ShellRoute = ShellRouteImport.update({
   id: '/_shell',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShellAdaptRoute = ShellAdaptRouteImport.update({
   id: '/adapt',
   path: '/adapt',
@@ -35,6 +48,11 @@ const ShellAdaptRoute = ShellAdaptRouteImport.update({
 const ShellAssistantRoute = ShellAssistantRouteImport.update({
   id: '/assistant',
   path: '/assistant',
+  getParentRoute: () => ShellRoute,
+} as any)
+const ShellCheckinRoute = ShellCheckinRouteImport.update({
+  id: '/checkin',
+  path: '/checkin',
   getParentRoute: () => ShellRoute,
 } as any)
 const ShellCompareRoute = ShellCompareRouteImport.update({
@@ -60,8 +78,11 @@ const ShellRoadmapRoute = ShellRoadmapRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
   '/adapt': typeof ShellAdaptRoute
   '/assistant': typeof ShellAssistantRoute
+  '/checkin': typeof ShellCheckinRoute
   '/compare': typeof ShellCompareRoute
   '/dashboard': typeof ShellDashboardRoute
   '/onboarding': typeof ShellOnboardingRoute
@@ -69,8 +90,11 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
   '/adapt': typeof ShellAdaptRoute
   '/assistant': typeof ShellAssistantRoute
+  '/checkin': typeof ShellCheckinRoute
   '/compare': typeof ShellCompareRoute
   '/dashboard': typeof ShellDashboardRoute
   '/onboarding': typeof ShellOnboardingRoute
@@ -80,8 +104,11 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_shell': typeof ShellRouteWithChildren
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
   '/_shell/adapt': typeof ShellAdaptRoute
   '/_shell/assistant': typeof ShellAssistantRoute
+  '/_shell/checkin': typeof ShellCheckinRoute
   '/_shell/compare': typeof ShellCompareRoute
   '/_shell/dashboard': typeof ShellDashboardRoute
   '/_shell/onboarding': typeof ShellOnboardingRoute
@@ -91,8 +118,11 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/login'
+    | '/signup'
     | '/adapt'
     | '/assistant'
+    | '/checkin'
     | '/compare'
     | '/dashboard'
     | '/onboarding'
@@ -100,8 +130,11 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/login'
+    | '/signup'
     | '/adapt'
     | '/assistant'
+    | '/checkin'
     | '/compare'
     | '/dashboard'
     | '/onboarding'
@@ -110,8 +143,11 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_shell'
+    | '/login'
+    | '/signup'
     | '/_shell/adapt'
     | '/_shell/assistant'
+    | '/_shell/checkin'
     | '/_shell/compare'
     | '/_shell/dashboard'
     | '/_shell/onboarding'
@@ -121,6 +157,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ShellRoute: typeof ShellRouteWithChildren
+  LoginRoute: typeof LoginRoute
+  SignupRoute: typeof SignupRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -139,6 +177,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShellRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_shell/adapt': {
       id: '/_shell/adapt'
       path: '/adapt'
@@ -151,6 +203,13 @@ declare module '@tanstack/react-router' {
       path: '/assistant'
       fullPath: '/assistant'
       preLoaderRoute: typeof ShellAssistantRouteImport
+      parentRoute: typeof ShellRoute
+    }
+    '/_shell/checkin': {
+      id: '/_shell/checkin'
+      path: '/checkin'
+      fullPath: '/checkin'
+      preLoaderRoute: typeof ShellCheckinRouteImport
       parentRoute: typeof ShellRoute
     }
     '/_shell/compare': {
@@ -187,6 +246,7 @@ declare module '@tanstack/react-router' {
 interface ShellRouteChildren {
   ShellAdaptRoute: typeof ShellAdaptRoute
   ShellAssistantRoute: typeof ShellAssistantRoute
+  ShellCheckinRoute: typeof ShellCheckinRoute
   ShellCompareRoute: typeof ShellCompareRoute
   ShellDashboardRoute: typeof ShellDashboardRoute
   ShellOnboardingRoute: typeof ShellOnboardingRoute
@@ -196,6 +256,7 @@ interface ShellRouteChildren {
 const ShellRouteChildren: ShellRouteChildren = {
   ShellAdaptRoute: ShellAdaptRoute,
   ShellAssistantRoute: ShellAssistantRoute,
+  ShellCheckinRoute: ShellCheckinRoute,
   ShellCompareRoute: ShellCompareRoute,
   ShellDashboardRoute: ShellDashboardRoute,
   ShellOnboardingRoute: ShellOnboardingRoute,
@@ -207,6 +268,8 @@ const ShellRouteWithChildren = ShellRoute._addFileChildren(ShellRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ShellRoute: ShellRouteWithChildren,
+  LoginRoute: LoginRoute,
+  SignupRoute: SignupRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

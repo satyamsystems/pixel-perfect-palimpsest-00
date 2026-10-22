@@ -5,18 +5,32 @@ import { PageHeader } from "@/components/app/ui-bits";
 export const Route = createFileRoute("/_shell/assistant")({
   head: () => ({
     meta: [
-      { title: "Ask Assistant — Trajectify.AI" },
-      { name: "description", content: "Ask questions about your plan and get answers based on your profile." },
-      { property: "og:title", content: "Ask Assistant — Trajectify.AI" },
-      { property: "og:description", content: "Your AI guide for career and skill planning." },
+      { title: "Trajectify AI Assistant — Trajectify.AI" },
+      {
+        name: "description",
+        content:
+          "Personalized advice and trajectory simulations grounded in your active goal and progress.",
+      },
+      { property: "og:title", content: "Trajectify AI Assistant — Trajectify.AI" },
+      {
+        property: "og:description",
+        content: "Answers grounded in your goal, roadmap and progress.",
+      },
     ],
   }),
-  component: () => (
-    <div className="mx-auto max-w-3xl">
-      <PageHeader title="Ask Assistant" subtitle="Answers grounded in your goal, roadmap and progress." />
-      <div className="card-surface h-[calc(100vh-15rem)] overflow-hidden">
+  component: AssistantPage,
+});
+
+function AssistantPage() {
+  return (
+    <div className="mx-auto max-w-4xl">
+      <PageHeader
+        title="Trajectify AI Assistant"
+        subtitle="Advice and scenario simulations grounded in your real profile, roadmap, and hours."
+      />
+      <div className="card-surface h-[calc(100vh-14rem)] min-h-[500px] overflow-hidden rounded-2xl border shadow-soft">
         <Chat />
       </div>
     </div>
-  ),
-});
+  );
+}
