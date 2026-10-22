@@ -75,7 +75,7 @@ function Dashboard() {
         <Panel title="6-dimension profile">
           <div className="h-64">
             <ResponsiveContainer>
-              <RadarChart data={dimensions} outerRadius="72%">
+              <RadarChart data={dimensions} outerRadius="62%">
                 <PolarGrid stroke="var(--border)" />
                 <PolarAngleAxis dataKey="dim" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} />
                 <Radar dataKey="value" stroke="var(--violet)" fill="var(--violet)" fillOpacity={0.3} strokeWidth={2} />
