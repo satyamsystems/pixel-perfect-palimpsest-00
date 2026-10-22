@@ -32,7 +32,7 @@ function Compare() {
       paths.map((p) => {
         const prob = Math.max(10, Math.min(97, Math.round(p.probability * (0.6 + 0.4 * factor) - delay * 3)));
         const time = Math.max(2, Math.round((p.months / factor) * 10) / 10);
-        const data = months.map((m, i) => ({ m, v: Math.min(100, Math.round(p.base[i] * (0.55 + 0.45 * factor) - (i > 0 ? delay * 2 : 0))) }));
+        const data = months.map((m, i) => ({ m, v: Math.min(100, Math.round((p.base[i] ?? 0) * (0.55 + 0.45 * factor) - (i > 0 ? delay * 2 : 0))) }));
         return { ...p, prob, time, data };
       }),
     [factor, delay],
@@ -47,11 +47,11 @@ function Compare() {
         <div className="grid gap-8 md:grid-cols-2">
           <div>
             <div className="mb-3 flex justify-between text-sm"><span>Hours per week</span><span className="font-semibold">{hours} hrs</span></div>
-            <Slider value={[hours]} min={4} max={30} step={1} onValueChange={(v) => setHours(v[0])} aria-label="Hours per week" />
+            <Slider value={[hours]} min={4} max={30} step={1} onValueChange={(v) => setHours(v[0] ?? 0)} aria-label="Hours per week" />
           </div>
           <div>
             <div className="mb-3 flex justify-between text-sm"><span>Start date</span><span className="font-semibold">{delay === 0 ? "This week" : `In ${delay} month${delay > 1 ? "s" : ""}`}</span></div>
-            <Slider value={[delay]} min={0} max={4} step={1} onValueChange={(v) => setDelay(v[0])} aria-label="Start delay in months" />
+            <Slider value={[delay]} min={0} max={4} step={1} onValueChange={(v) => setDelay(v[0] ?? 0)} aria-label="Start delay in months" />
           </div>
         </div>
       </Panel>

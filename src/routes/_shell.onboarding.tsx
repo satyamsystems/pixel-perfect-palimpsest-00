@@ -78,7 +78,7 @@ function Onboarding() {
     </div>,
     <div key="t" className="card-surface p-6">
       <div className="mb-4 flex items-baseline justify-between"><span className="font-medium">Available time per week</span><span className="font-display text-3xl font-bold">{hours} hrs</span></div>
-      <Slider value={[hours]} min={2} max={40} step={1} onValueChange={(v) => setHours(v[0])} aria-label="Hours per week" />
+      <Slider value={[hours]} min={2} max={40} step={1} onValueChange={(v) => setHours(v[0] ?? 0)} aria-label="Hours per week" />
       <p className="mt-4 text-sm text-muted-foreground">≈ {Math.round((hours / 7) * 10) / 10} hrs/day. Most students reaching this goal invest 12–18 hrs/week.</p>
     </div>,
     <div key="r" className="card-surface divide-y">
