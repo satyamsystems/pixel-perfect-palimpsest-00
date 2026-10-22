@@ -10,33 +10,117 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ShellRouteImport } from './routes/_shell'
+import { Route as ShellAdaptRouteImport } from './routes/_shell.adapt'
+import { Route as ShellAssistantRouteImport } from './routes/_shell.assistant'
+import { Route as ShellCompareRouteImport } from './routes/_shell.compare'
+import { Route as ShellDashboardRouteImport } from './routes/_shell.dashboard'
+import { Route as ShellOnboardingRouteImport } from './routes/_shell.onboarding'
+import { Route as ShellRoadmapRouteImport } from './routes/_shell.roadmap'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ShellRoute = ShellRouteImport.update({
+  id: '/_shell',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShellAdaptRoute = ShellAdaptRouteImport.update({
+  id: '/adapt',
+  path: '/adapt',
+  getParentRoute: () => ShellRoute,
+} as any)
+const ShellAssistantRoute = ShellAssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
+  getParentRoute: () => ShellRoute,
+} as any)
+const ShellCompareRoute = ShellCompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
+  getParentRoute: () => ShellRoute,
+} as any)
+const ShellDashboardRoute = ShellDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => ShellRoute,
+} as any)
+const ShellOnboardingRoute = ShellOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => ShellRoute,
+} as any)
+const ShellRoadmapRoute = ShellRoadmapRouteImport.update({
+  id: '/roadmap',
+  path: '/roadmap',
+  getParentRoute: () => ShellRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/adapt': typeof ShellAdaptRoute
+  '/assistant': typeof ShellAssistantRoute
+  '/compare': typeof ShellCompareRoute
+  '/dashboard': typeof ShellDashboardRoute
+  '/onboarding': typeof ShellOnboardingRoute
+  '/roadmap': typeof ShellRoadmapRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/adapt': typeof ShellAdaptRoute
+  '/assistant': typeof ShellAssistantRoute
+  '/compare': typeof ShellCompareRoute
+  '/dashboard': typeof ShellDashboardRoute
+  '/onboarding': typeof ShellOnboardingRoute
+  '/roadmap': typeof ShellRoadmapRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_shell': typeof ShellRouteWithChildren
+  '/_shell/adapt': typeof ShellAdaptRoute
+  '/_shell/assistant': typeof ShellAssistantRoute
+  '/_shell/compare': typeof ShellCompareRoute
+  '/_shell/dashboard': typeof ShellDashboardRoute
+  '/_shell/onboarding': typeof ShellOnboardingRoute
+  '/_shell/roadmap': typeof ShellRoadmapRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/adapt'
+    | '/assistant'
+    | '/compare'
+    | '/dashboard'
+    | '/onboarding'
+    | '/roadmap'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/adapt'
+    | '/assistant'
+    | '/compare'
+    | '/dashboard'
+    | '/onboarding'
+    | '/roadmap'
+  id:
+    | '__root__'
+    | '/'
+    | '/_shell'
+    | '/_shell/adapt'
+    | '/_shell/assistant'
+    | '/_shell/compare'
+    | '/_shell/dashboard'
+    | '/_shell/onboarding'
+    | '/_shell/roadmap'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ShellRoute: typeof ShellRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +132,81 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_shell': {
+      id: '/_shell'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof ShellRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_shell/adapt': {
+      id: '/_shell/adapt'
+      path: '/adapt'
+      fullPath: '/adapt'
+      preLoaderRoute: typeof ShellAdaptRouteImport
+      parentRoute: typeof ShellRoute
+    }
+    '/_shell/assistant': {
+      id: '/_shell/assistant'
+      path: '/assistant'
+      fullPath: '/assistant'
+      preLoaderRoute: typeof ShellAssistantRouteImport
+      parentRoute: typeof ShellRoute
+    }
+    '/_shell/compare': {
+      id: '/_shell/compare'
+      path: '/compare'
+      fullPath: '/compare'
+      preLoaderRoute: typeof ShellCompareRouteImport
+      parentRoute: typeof ShellRoute
+    }
+    '/_shell/dashboard': {
+      id: '/_shell/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof ShellDashboardRouteImport
+      parentRoute: typeof ShellRoute
+    }
+    '/_shell/onboarding': {
+      id: '/_shell/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof ShellOnboardingRouteImport
+      parentRoute: typeof ShellRoute
+    }
+    '/_shell/roadmap': {
+      id: '/_shell/roadmap'
+      path: '/roadmap'
+      fullPath: '/roadmap'
+      preLoaderRoute: typeof ShellRoadmapRouteImport
+      parentRoute: typeof ShellRoute
+    }
   }
 }
 
+interface ShellRouteChildren {
+  ShellAdaptRoute: typeof ShellAdaptRoute
+  ShellAssistantRoute: typeof ShellAssistantRoute
+  ShellCompareRoute: typeof ShellCompareRoute
+  ShellDashboardRoute: typeof ShellDashboardRoute
+  ShellOnboardingRoute: typeof ShellOnboardingRoute
+  ShellRoadmapRoute: typeof ShellRoadmapRoute
+}
+
+const ShellRouteChildren: ShellRouteChildren = {
+  ShellAdaptRoute: ShellAdaptRoute,
+  ShellAssistantRoute: ShellAssistantRoute,
+  ShellCompareRoute: ShellCompareRoute,
+  ShellDashboardRoute: ShellDashboardRoute,
+  ShellOnboardingRoute: ShellOnboardingRoute,
+  ShellRoadmapRoute: ShellRoadmapRoute,
+}
+
+const ShellRouteWithChildren = ShellRoute._addFileChildren(ShellRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ShellRoute: ShellRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
