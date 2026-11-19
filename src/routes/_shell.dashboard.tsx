@@ -123,7 +123,7 @@ function DashboardPage() {
       return;
     }
 
-    dataService.getProfile(cur.id).then((p) => {
+    dataService.getStudentDashboardData(cur.id).then((p) => {
       setProfile(p);
       setLoading(false);
     });

@@ -1,11 +1,13 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState, useEffect } from "react";
-import { Award, Clock, Compass, GitCompare, Sparkles, TrendingUp } from "lucide-react";
+import { useMemo, useState, useEffect, useRef } from "react";
+import { Award, Clock, Compass, GitCompare, Sparkles, TrendingUp, Save } from "lucide-react";
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis } from "recharts";
+import { toast } from "sonner";
 import { Slider } from "@/components/ui/slider";
 import { AiTag, EmptyState, PageHeader, Panel, RiskBadge } from "@/components/app/ui-bits";
 import { authService, AuthUser } from "@/services/authService";
 import { dataService, UserProfile, Goal } from "@/services/dataService";
+import { calculateSimulation, SkillRequirementInput } from "@/lib/scoring";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_shell/compare")({
@@ -24,7 +26,6 @@ export const Route = createFileRoute("/_shell/compare")({
 });
 
 const chartPalette = ["var(--primary)", "var(--ai-highlight)", "var(--accent)"];
-const monthsLabels = ["Now", "M1", "M2", "M3", "M4", "M5", "M6"];
 
 function ComparePage() {
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ function ComparePage() {
 
   const [hours, setHours] = useState(14);
   const [delay, setDelay] = useState(0);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const cur = authService.getCurrentUser();
@@ -46,7 +48,7 @@ function ComparePage() {
     dataService.getProfile(cur.id).then((p) => {
       setProfile(p);
       if (p) {
-        const activeGoal = p.goals.find((g) => g.id === p.activeGoalId);
+        const activeGoal = p.goals.find((g) => g.id === p.activeGoalId) || p.goals[0];
         if (activeGoal) {
           setHours(activeGoal.hoursPerWeek || 14);
         }
@@ -69,29 +71,23 @@ function ComparePage() {
         {
           id: "path-1",
           name: "Structured Hypertrophy & Cardio",
-          skillGrowth: 86,
-          probability: 80,
           months: 5,
-          risk: "Low" as const,
-          base: [20, 35, 52, 68, 79, 88, 92],
+          velocity: 0.08,
+          adherence: 1.0,
         },
         {
           id: "path-2",
           name: "High-Intensity Functional Endurance",
-          skillGrowth: 78,
-          probability: 68,
           months: 6,
-          risk: "Medium" as const,
-          base: [15, 28, 42, 55, 66, 75, 82],
+          velocity: 0.065,
+          adherence: 0.95,
         },
         {
           id: "path-3",
           name: "Rapid Athletic Transformation",
-          skillGrowth: 65,
-          probability: 58,
           months: 3,
-          risk: "High" as const,
-          base: [25, 45, 62, 70, 75, 78, 80],
+          velocity: 0.12,
+          adherence: 0.85,
         },
       ];
     }
@@ -101,88 +97,125 @@ function ComparePage() {
         {
           id: "path-1",
           name: "Automated Index & Emergency Shield",
-          skillGrowth: 88,
-          probability: 85,
           months: 6,
-          risk: "Low" as const,
-          base: [20, 34, 48, 62, 74, 84, 91],
+          velocity: 0.09,
+          adherence: 1.0,
         },
         {
           id: "path-2",
           name: "Active Portfolio & Growth Assets",
-          skillGrowth: 76,
-          probability: 64,
           months: 8,
-          risk: "Medium" as const,
-          base: [15, 26, 38, 50, 62, 70, 78],
+          velocity: 0.07,
+          adherence: 0.95,
         },
         {
           id: "path-3",
           name: "Aggressive Cashflow Optimization",
-          skillGrowth: 62,
-          probability: 55,
           months: 4,
-          risk: "High" as const,
-          base: [25, 40, 52, 60, 65, 68, 70],
+          velocity: 0.11,
+          adherence: 0.85,
         },
       ];
     }
 
-    // Default: Career / Skills
+    // Default: Career / Skills or Habits
     return [
       {
         id: "path-1",
         name: `${goalTitle} (Direct Track)`,
-        skillGrowth: 84,
-        probability: Math.min(94, Math.max(50, activeGoal.probability || 74)),
         months: 6,
-        risk: "Low" as const,
-        base: [20, 35, 50, 64, 76, 85, 92],
+        velocity: 0.08,
+        adherence: 1.0,
       },
       {
         id: "path-2",
         name: "Full-Stack Specialist & Cloud Track",
-        skillGrowth: 76,
-        probability: 66,
         months: 8,
-        risk: "Medium" as const,
-        base: [15, 25, 36, 48, 58, 68, 75],
+        velocity: 0.065,
+        adherence: 0.95,
       },
       {
         id: "path-3",
         name: "Accelerated Sprint to Production",
-        skillGrowth: 60,
-        probability: 56,
         months: 4,
-        risk: "High" as const,
-        base: [25, 42, 56, 64, 70, 72, 74],
+        velocity: 0.12,
+        adherence: 0.82,
       },
     ];
   }, [activeGoal]);
 
-  const factor = hours / (activeGoal?.hoursPerWeek || 14);
+  // Deterministic scoring engine calculations
+  const computed = useMemo(() => {
+    if (!activeGoal) return [];
 
-  const computed = useMemo(
-    () =>
-      basePaths.map((p) => {
-        const prob = Math.max(
-          12,
-          Math.min(98, Math.round(p.probability * (0.6 + 0.4 * factor) - delay * 3)),
-        );
-        const time = Math.max(1.5, Math.round((p.months / factor) * 10) / 10);
-        const data = monthsLabels.map((m, i) => ({
-          m,
-          v: Math.min(
-            100,
-            Math.round((p.base[i] ?? 0) * (0.55 + 0.45 * factor) - (i > 0 ? delay * 2.5 : 0)),
-          ),
-        }));
-        return { ...p, prob, time, data };
-      }),
-    [basePaths, factor, delay],
-  );
+    const skillInputs: SkillRequirementInput[] = (activeGoal.skills || []).map((sk) => ({
+      name: sk.name,
+      r: 8, // Target required level
+      s: sk.level, // Current student level
+      w: 1.0,
+    }));
+
+    if (skillInputs.length === 0) {
+      skillInputs.push({ name: "Core Skills", r: 8, s: 4, w: 1.0 });
+    }
+
+    return basePaths.map((p) => {
+      const sim = calculateSimulation({
+        skills: skillInputs,
+        hoursPerWeek: hours,
+        targetMonths: p.months,
+        startDelayMonths: delay,
+        velocity: p.velocity,
+        adherence: p.adherence,
+      });
+
+      return {
+        id: p.id,
+        name: p.name,
+        prob: sim.successScorePercent, // Deterministic success score P
+        skillGrowth: sim.readinessPercent, // Deterministic readiness score F
+        time: Math.min(24, Math.max(1.0, sim.timeToReadinessMonths)), // Time to readiness M
+        risk: sim.riskLevel, // Deterministic risk delta R = P(v) - P(0.7v)
+        data: sim.monthlyCurve.map((c) => ({ m: c.month, v: c.value })),
+        rawSim: sim,
+      };
+    });
+  }, [activeGoal, basePaths, hours, delay]);
 
   const best = computed.length > 0 ? computed.reduce((a, b) => (b.prob > a.prob ? b : a)) : null;
+
+  // Debounced auto-save of current simulation to Supabase what_if_comparisons
+  useEffect(() => {
+    if (!user || !activeGoal || !best) return;
+
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    saveTimeoutRef.current = setTimeout(() => {
+      dataService.saveWhatIfComparison(user.id, activeGoal.id, {
+        scenarioName: best.name,
+        hoursPerWeek: hours,
+        delayMonths: delay,
+        projectedProbability: best.prob,
+        projectedCompletionMonths: Math.round(best.time) || 6,
+        riskLevel: best.risk,
+        skillGrowthScore: best.skillGrowth,
+        comparisonData: {
+          paths: computed.map((c) => ({
+            name: c.name,
+            score: c.prob,
+            readiness: c.skillGrowth,
+            risk: c.risk,
+          })),
+        },
+      });
+    }, 1500);
+
+    return () => {
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    };
+  }, [user, activeGoal, best, hours, delay, computed]);
 
   if (loading) {
     return (
@@ -289,13 +322,13 @@ function ComparePage() {
                 <div className="rounded-xl bg-muted/60 p-2.5">
                   <p className="font-display text-lg font-bold text-foreground">{p.prob}%</p>
                   <p className="text-[10px] text-muted-foreground uppercase font-semibold">
-                    Probability
+                    Score (P)
                   </p>
                 </div>
                 <div className="rounded-xl bg-muted/60 p-2.5">
-                  <p className="font-display text-lg font-bold text-foreground">{p.skillGrowth}</p>
+                  <p className="font-display text-lg font-bold text-foreground">{p.skillGrowth}%</p>
                   <p className="text-[10px] text-muted-foreground uppercase font-semibold">
-                    Skill Score
+                    Readiness (F)
                   </p>
                 </div>
                 <div className="rounded-xl bg-muted/60 p-2.5">
@@ -304,7 +337,7 @@ function ComparePage() {
                     {p.time}
                   </p>
                   <p className="text-[10px] text-muted-foreground uppercase font-semibold">
-                    Months
+                    Months (M)
                   </p>
                 </div>
               </div>
@@ -331,7 +364,7 @@ function ComparePage() {
                     <Line
                       type="monotone"
                       dataKey="v"
-                      name="Projected Readiness"
+                      name="Deterministic Readiness"
                       stroke={chartPalette[i]}
                       strokeWidth={3}
                       dot={false}
@@ -351,9 +384,9 @@ function ComparePage() {
             At <strong>{hours} hours/week</strong>{" "}
             {delay > 0 ? `with a ${delay}-month delay, ` : "starting immediately, "}
             the <span className="font-bold text-primary">{best.name}</span> yields the highest
-            modeled goal achievement probability (<strong>{best.prob}%</strong>). It protects your
-            learning momentum while remaining within safe cognitive load boundaries for your
-            selected domain.
+            deterministic success score (<strong>{best.prob}%</strong>) with{" "}
+            <strong>{best.risk}</strong> modeled volatility risk. It maximizes skill readiness
+            growth within safe cognitive limits for your domain.
           </p>
         </Panel>
       )}

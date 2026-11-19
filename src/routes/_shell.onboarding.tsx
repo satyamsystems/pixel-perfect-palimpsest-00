@@ -116,20 +116,20 @@ function ProfileAndOnboarding() {
 
     dataService.getProfile(cur.id).then((p) => {
       setProfile(p);
-      if (p) {
+      const activeGoal = p?.goals.find((g) => g.id === p.activeGoalId) || p?.goals[0];
+      if (p && activeGoal) {
         setActiveTab("edit");
-        const activeGoal = p.goals.find((g) => g.id === p.activeGoalId) || p.goals[0];
-        if (activeGoal) {
-          setName(p.name);
-          setAvatarInitials(p.initials);
-          setDomain(activeGoal.domain);
-          setGoal(activeGoal.title);
-          setSkills(activeGoal.skills || []);
-          setHours(activeGoal.hoursPerWeek || 14);
-          setTargetDate(activeGoal.targetDate || "6 months");
-        }
+        setName(p.name);
+        setAvatarInitials(p.initials);
+        setDomain(activeGoal.domain);
+        setGoal(activeGoal.title);
+        setSkills(activeGoal.skills || []);
+        setHours(activeGoal.hoursPerWeek || 14);
+        setTargetDate(activeGoal.targetDate || "6 months");
       } else {
         setActiveTab("wizard");
+        if (p?.name) setName(p.name);
+        if (p?.initials) setAvatarInitials(p.initials);
         // Check for onboarding draft
         try {
           const draft = localStorage.getItem(ONBOARDING_DRAFT_KEY);
